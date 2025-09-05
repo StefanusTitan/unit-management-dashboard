@@ -1,3 +1,5 @@
+import { formatLastUpdated, capitalizeType } from "@/utils/general";
+
 interface Unit {
   id: number;
   name: string;
@@ -11,8 +13,8 @@ export default function UnitList({ units }: { units: Unit[] }) {
       {units.map((unit) => (
         <li key={unit.id}>
           <h3>{unit.name}</h3>
-          <p>Type: {unit.type}</p>
-          <p>Last Updated: {unit.lastUpdated}</p>
+          <p>Type: {capitalizeType(unit.type)}</p>
+          <p>Last Updated: {formatLastUpdated(unit.lastUpdated)}</p>
         </li>
       ))}
     </ul>
