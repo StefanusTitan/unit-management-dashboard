@@ -6,6 +6,7 @@ import { getAllUnits, updateUnitStatus } from "@/apis/units";
 import FiltersRow from "./filters/FiltersRow";
 import StatusDropdown from "./ui/StatusDropdown";
 import { getTypeColor } from "./utils/colors";
+import { toast } from "sonner";
 
 interface Unit {
   id: number;
@@ -43,16 +44,20 @@ export default function UnitList({ units: initialUnits }: { units: Unit[] }) {
   }, [search, type, status]);
 
   const handleStatusChange = async (unitId: number, newStatus: string) => {
-    setUnits(prevUnits => 
-      prevUnits.map(unit => 
-        unit.id === unitId 
-          ? { ...unit, status: newStatus, lastUpdated: new Date().toISOString() }
-          : unit
-      )
-    );
-    await updateUnitStatus(unitId, newStatus).catch(err => {
-      console.error("Failed to update status:", err);
-    });
+    const response = await updateUnitStatus(unitId, newStatus);
+    console.log(response);
+    if (response.error) {
+      toast.warning(response.error);
+    } else {
+      setUnits(prevUnits => 
+        prevUnits.map(unit => 
+          unit.id === unitId 
+            ? { ...unit, status: newStatus, lastUpdated: new Date().toISOString() }
+            : unit
+        )
+      );
+      toast.success('Status updated successfully');
+    }
   };
 
   return (

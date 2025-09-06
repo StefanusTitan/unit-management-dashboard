@@ -20,6 +20,5 @@ export async function updateUnitStatus(id: number, status: string) {
     },
     body: JSON.stringify({ unit: { status } }),
   });
-  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
   return res.json();
 }
