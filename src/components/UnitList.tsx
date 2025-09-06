@@ -2,7 +2,7 @@
 
 import { formatLastUpdated, capitalizeType } from "@/utils/general";
 import { useState, useEffect } from 'react';
-import { getAllUnits } from "@/apis/units";
+import { getAllUnits, updateUnitStatus } from "@/apis/units";
 import FiltersRow from "./filters/FiltersRow";
 import StatusDropdown from "./ui/StatusDropdown";
 import { getTypeColor } from "./utils/colors";
@@ -42,7 +42,7 @@ export default function UnitList({ units: initialUnits }: { units: Unit[] }) {
     };
   }, [search, type, status]);
 
-  const handleStatusChange = (unitId: number, newStatus: string) => {
+  const handleStatusChange = async (unitId: number, newStatus: string) => {
     setUnits(prevUnits => 
       prevUnits.map(unit => 
         unit.id === unitId 
@@ -50,7 +50,9 @@ export default function UnitList({ units: initialUnits }: { units: Unit[] }) {
           : unit
       )
     );
-    // TODO: Make API call to update status on the server
+    await updateUnitStatus(unitId, newStatus).catch(err => {
+      console.error("Failed to update status:", err);
+    });
   };
 
   return (
