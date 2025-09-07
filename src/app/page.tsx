@@ -1,9 +1,12 @@
-import { getAllUnits } from "@/apis/units";
+"use client";
+
 import UnitList from "@/components/UnitList";
 import { LayoutDashboard } from "lucide-react";
+import CreateUnitDialog from "@/components/ui/CreateUnitDialog";
+import { useState } from "react";
 
-export default async function Home() {
-  const data = await getAllUnits();
+export default function Home() {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
@@ -12,7 +15,8 @@ export default async function Home() {
           <LayoutDashboard className="inline-block mr-2" size={56} />
           Unit Management Dashboard
         </h1>
-        <UnitList units={data.units} />
+        <UnitList onOpenCreateUnit={() => setIsOpen(true)} />
+        <CreateUnitDialog isOpen={isOpen} onClose={() => setIsOpen(false)} />
       </main>
     </div>
   );

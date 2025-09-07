@@ -1,6 +1,7 @@
 import { capitalizeType } from "@/utils/general";
 import { STATUS_OPTIONS, UNIT_TYPES } from "../constants";
 import Dropdown from "../ui/Dropdown";
+import { Plus } from "lucide-react";
 
 interface FiltersRowProps {
   search: string;
@@ -9,9 +10,10 @@ interface FiltersRowProps {
   setType: (value: string) => void;
   status: string;
   setStatus: (value: string) => void;
+  onOpenCreateUnit: () => void;
 }
 
-export default function FiltersRow({ search, setSearch, type, setType, status, setStatus }: FiltersRowProps) {
+export default function FiltersRow({ search, setSearch, type, setType, status, setStatus, onOpenCreateUnit }: FiltersRowProps) {
   return (
     <div className="flex flex-col sm:flex-row justify-between mb-6 gap-4 animate-fade-in">
       <div className="relative">
@@ -44,6 +46,12 @@ export default function FiltersRow({ search, setSearch, type, setType, status, s
           placeholder="Status"
           minWidth="120px"
         />
+        <button
+          className="bg-gray-800 border border-gray-600 text-white rounded-lg px-4 py-2 hover:bg-gray-700 transition-all duration-300 cursor-pointer"
+          onClick={onOpenCreateUnit}
+        >
+          <Plus size={24} />
+        </button>
       </div>
     </div>
   );

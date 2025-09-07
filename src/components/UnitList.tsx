@@ -16,7 +16,7 @@ interface Unit {
   lastUpdated: string;
 }
 
-export default function UnitList({ units: initialUnits }: { units: Unit[] }) {
+export default function UnitList({ units: initialUnits = [], onOpenCreateUnit }: { units?: Unit[], onOpenCreateUnit: () => void }) {
   const [units, setUnits] = useState(initialUnits);
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
@@ -69,6 +69,7 @@ export default function UnitList({ units: initialUnits }: { units: Unit[] }) {
         setType={setType}
         status={status}
         setStatus={setStatus}
+        onOpenCreateUnit={onOpenCreateUnit}
       />
       <ul className="space-y-4">
         {units.map((unit, index) => (
