@@ -1,7 +1,7 @@
 "use client";
 
 import { formatLastUpdated, capitalizeType } from "@/utils/general";
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useUnits, useUpdateUnitStatus } from "@/apis/units";
 import FiltersRow from "./filters/FiltersRow";
 import StatusDropdown from "./ui/StatusDropdown";
@@ -20,15 +20,26 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
 
   // Create query params object based on filters
   const queryParams = useMemo(() => {
     const params: Record<string, string> = {};
-    if (search) params.name = search;
+    if (debouncedSearch) params.name = debouncedSearch;
     if (type) params.type = type;
     if (status) params.status = status;
     return params;
-  }, [search, type, status]);
+  }, [debouncedSearch, type, status]);
 
   // Use React Query to fetch units
   const { data, isLoading, error } = useUnits(queryParams);
@@ -101,33 +112,39 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
         setStatus={setStatus}
         onOpenCreateUnit={onOpenCreateUnit}
       />
-      <ul className="space-y-4">
-        {units.map((unit: Unit, index: number) => (
-          <li
-            key={unit.id}
-            className="flex justify-between bg-gray-800 border border-gray-700 rounded-lg p-4 transition-all duration-300 animate-fade-in-up"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-              {unit.name}
-              </h3>
-              <p className={`w-fit px-2 text-base mb-1 rounded-full ${getTypeColor(unit.type)}`}>
-                {capitalizeType(unit.type)}
-              </p>
-              <p className="text-gray-400 text-sm">
-                <span className="font-medium">Last Updated:</span> {formatLastUpdated(unit.lastUpdated)}
-              </p>
-            </div>
-            <div>
-              <StatusDropdown
-                currentStatus={unit.status}
-                onStatusChange={(newStatus) => handleStatusChange(unit.id, newStatus)}
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
+      {units.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-400">No Units Found</p>
+        </div>
+      ) : (
+        <ul className="space-y-4">
+          {units.map((unit: Unit, index: number) => (
+            <li
+              key={unit.id}
+              className="flex justify-between bg-gray-800 border border-gray-700 rounded-lg p-4 transition-all duration-300 animate-fade-in-up"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">
+                {unit.name}
+                </h3>
+                <p className={`w-fit px-2 text-base mb-1 rounded-full ${getTypeColor(unit.type)}`}>
+                  {capitalizeType(unit.type)}
+                </p>
+                <p className="text-gray-400 text-sm">
+                  <span className="font-medium">Last Updated:</span> {formatLastUpdated(unit.lastUpdated)}
+                </p>
+              </div>
+              <div>
+                <StatusDropdown
+                  currentStatus={unit.status}
+                  onStatusChange={(newStatus) => handleStatusChange(unit.id, newStatus)}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
