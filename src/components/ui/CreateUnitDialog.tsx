@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { UNIT_TYPES } from "../constants";
 import { BedDoubleIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useCreateUnit } from "@/apis/units";
 
 interface CreateUnitDialogProps {
   isOpen: boolean;
@@ -35,19 +37,34 @@ export default function CreateUnitDialog({ isOpen, onClose }: CreateUnitDialogPr
     }, 300);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const createUnit = useCreateUnit();
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    try {
-      // TODO: Add API call to create a new unit
-      // Handle successful submission
-      handleClose(); // Close the dialog after submission
-    } catch (error) {
-      // Handle error
-    } finally {
-      setIsSubmitting(false);
-    }
+
+    createUnit.mutate(
+      { name, type },
+      {
+        onSuccess: () => {
+          toast.success("Unit created successfully");
+          handleClose();
+          setName("");
+          setType(UNIT_TYPES[0]);
+        },
+        onError: (error) => {
+          toast.error(
+            "Failed to create unit" +
+              (error instanceof Error ? `: ${error.message}` : "")
+          );
+        },
+        onSettled: () => {
+          setIsSubmitting(false);
+        },
+      }
+    );
   };
+
   return (
     <>
       {shouldRender && (

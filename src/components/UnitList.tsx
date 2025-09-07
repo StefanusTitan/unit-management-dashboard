@@ -1,8 +1,8 @@
 "use client";
 
 import { formatLastUpdated, capitalizeType } from "@/utils/general";
-import { useState, useEffect } from 'react';
-import { getAllUnits, updateUnitStatus } from "@/apis/units";
+import { useState, useMemo } from 'react';
+import { useUnits, useUpdateUnitStatus } from "@/apis/units";
 import FiltersRow from "./filters/FiltersRow";
 import StatusDropdown from "./ui/StatusDropdown";
 import { getTypeColor } from "./utils/colors";
@@ -16,49 +16,80 @@ interface Unit {
   lastUpdated: string;
 }
 
-export default function UnitList({ units: initialUnits = [], onOpenCreateUnit }: { units?: Unit[], onOpenCreateUnit: () => void }) {
-  const [units, setUnits] = useState(initialUnits);
+export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () => void }) {
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
 
-  useEffect(() => {
-    const fetchFilteredUnits = async () => {
-      const queryParams: Record<string, string> = {};
-      if (search) queryParams.name = search;
-      if (type) queryParams.type = type;
-      if (status) queryParams.status = status;
-      
-      const data = await getAllUnits(queryParams);
-      setUnits(data.units);
-    };
-
-    // Debounce the fetch call to avoid too many requests while typing
-    const handler = setTimeout(() => {
-      fetchFilteredUnits();
-    }, 300); // 300ms delay
-
-    return () => {
-      clearTimeout(handler);
-    };
+  // Create query params object based on filters
+  const queryParams = useMemo(() => {
+    const params: Record<string, string> = {};
+    if (search) params.name = search;
+    if (type) params.type = type;
+    if (status) params.status = status;
+    return params;
   }, [search, type, status]);
 
+  // Use React Query to fetch units
+  const { data, isLoading, error } = useUnits(queryParams);
+  const updateUnitStatus = useUpdateUnitStatus();
+
+  const units = data?.units || [];
+
   const handleStatusChange = async (unitId: number, newStatus: string) => {
-    const response = await updateUnitStatus(unitId, newStatus);
-    console.log(response);
-    if (response.error) {
-      toast.warning(response.error);
-    } else {
-      setUnits(prevUnits => 
-        prevUnits.map(unit => 
-          unit.id === unitId 
-            ? { ...unit, status: newStatus, lastUpdated: new Date().toISOString() }
-            : unit
-        )
-      );
-      toast.success('Status updated successfully');
-    }
+    updateUnitStatus.mutate(
+      { id: unitId, status: newStatus },
+      {
+        onSuccess: () => {
+          toast.success('Status updated successfully');
+        },
+        onError: (error) => {
+          toast.error(
+            'Failed to update status' +
+              (error instanceof Error ? `: ${error.message}` : '')
+          );
+        },
+      }
+    );
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <FiltersRow
+          search={search}
+          setSearch={setSearch}
+          type={type}
+          setType={setType}
+          status={status}
+          setStatus={setStatus}
+          onOpenCreateUnit={onOpenCreateUnit}
+        />
+        <div className="text-center py-8">
+          <p className="text-gray-400">Loading units...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <FiltersRow
+          search={search}
+          setSearch={setSearch}
+          type={type}
+          setType={setType}
+          status={status}
+          setStatus={setStatus}
+          onOpenCreateUnit={onOpenCreateUnit}
+        />
+        <div className="text-center py-8">
+          <p className="text-red-400">Error loading units: {error instanceof Error ? error.message : 'Unknown error'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -72,7 +103,7 @@ export default function UnitList({ units: initialUnits = [], onOpenCreateUnit }:
         onOpenCreateUnit={onOpenCreateUnit}
       />
       <ul className="space-y-4">
-        {units.map((unit, index) => (
+        {units.map((unit: Unit, index: number) => (
           <li
             key={unit.id}
             className="flex justify-between bg-gray-800 border border-gray-700 rounded-lg p-4 transition-all duration-300 animate-fade-in-up"
