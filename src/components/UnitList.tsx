@@ -44,9 +44,8 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
           toast.success('Status updated successfully');
         },
         onError: (error) => {
-          toast.error(
-            'Failed to update status' +
-              (error instanceof Error ? `: ${error.message}` : '')
+          toast.warning(
+              (error instanceof Error ? `${error.message}` : '')
           );
         },
       }

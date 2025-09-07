@@ -35,7 +35,14 @@ export function useUpdateUnitStatus() {
         },
         body: JSON.stringify({ unit: { status } }),
       });
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      if (!res.ok) {
+        // Parse the JSON error response from the API
+        const errorData = await res.json();
+        // Throw an error with the message from the API
+        throw new Error(
+          errorData.error || `Request failed: ${res.status}`
+        );
+      }
       return res.json();
     },
     onSuccess: () => {
