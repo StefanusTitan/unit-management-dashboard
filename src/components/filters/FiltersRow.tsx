@@ -47,10 +47,11 @@ export default function FiltersRow({ search, setSearch, type, setType, status, s
           minWidth="120px"
         />
         <button
-          className="bg-gray-800 border border-gray-600 text-white rounded-lg px-4 py-2 hover:bg-gray-700 transition-all duration-300 cursor-pointer"
+          className="bg-cyan-600 border border-gray-600 text-white rounded-lg px-4 py-2 hover:bg-cyan-700 transition-all duration-300 cursor-pointer"
           onClick={onOpenCreateUnit}
+          title="Create New Unit"
         >
-          <Plus size={24} />
+          <Plus size={24} color="white" />
         </button>
       </div>
     </div>
