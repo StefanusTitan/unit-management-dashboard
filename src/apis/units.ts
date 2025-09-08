@@ -70,3 +70,24 @@ export function useCreateUnit() {
     },
   });
 }
+
+// Fetch a single unit by id
+export async function getUnit(id: number) {
+  const url = `${API_URL}${baseUrl}/${id}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  return res.json();
+}
+
+// React Query hook for a single unit
+export function useUnit(id: number | null) {
+  return useQuery({
+    queryKey: ['unit', id],
+    queryFn: () => {
+      if (id == null) throw new Error('id is required');
+      return getUnit(id);
+    },
+    enabled: id != null, // only run when id is provided
+    staleTime: 15 * 1000,
+  });
+}

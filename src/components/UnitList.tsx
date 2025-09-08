@@ -5,6 +5,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useUnits, useUpdateUnitStatus } from "@/apis/units";
 import FiltersRow from "./filters/FiltersRow";
 import StatusDropdown from "./ui/StatusDropdown";
+import UnitDetailsDrawer from "./ui/UnitDetailsDrawer";
 import { getTypeColor } from "./utils/colors";
 import { toast } from "sonner";
 
@@ -21,6 +22,8 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -61,6 +64,15 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
         },
       }
     );
+  };
+
+  const openDetails = (id: number) => {
+    setSelectedUnitId(id);
+    setIsDetailsOpen(true);
+  };
+
+  const closeDetails = () => {
+    setIsDetailsOpen(false);
   };
 
   if (isLoading) {
@@ -121,8 +133,12 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
           {units.map((unit: Unit, index: number) => (
             <li
               key={unit.id}
-              className="flex justify-between bg-gray-800 border border-gray-700 rounded-lg p-4 transition-all duration-300 animate-fade-in-up"
+              className="flex justify-between bg-gray-800 border border-gray-700 rounded-lg p-4 transition-all duration-300 animate-fade-in-up cursor-pointer hover:border-indigo-500/70 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
               style={{ animationDelay: `${index * 100}ms` }}
+              onClick={() => openDetails(unit.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetails(unit.id); } }}
             >
               <div>
                 <h3 className="text-xl font-semibold text-white mb-2">
@@ -135,7 +151,7 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
                   <span className="font-medium">Last Updated:</span> {formatLastUpdated(unit.lastUpdated)}
                 </p>
               </div>
-              <div>
+              <div className="flex flex-col items-end gap-2" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
                 <StatusDropdown
                   currentStatus={unit.status}
                   onStatusChange={(newStatus) => handleStatusChange(unit.id, newStatus)}
@@ -145,6 +161,7 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
           ))}
         </ul>
       )}
+      <UnitDetailsDrawer open={isDetailsOpen} unitId={selectedUnitId} onClose={closeDetails} />
     </div>
   );
 }
