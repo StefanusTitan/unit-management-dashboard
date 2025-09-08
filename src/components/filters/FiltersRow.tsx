@@ -15,7 +15,7 @@ interface FiltersRowProps {
 
 export default function FiltersRow({ search, setSearch, type, setType, status, setStatus, onOpenCreateUnit }: FiltersRowProps) {
   return (
-    <div className="flex flex-col sm:flex-row justify-between mb-6 gap-4 animate-fade-in">
+    <div className="flex flex-col sm:flex-row justify-between mb-6 gap-4">
       <div className="relative">
         <input
           type="text"
