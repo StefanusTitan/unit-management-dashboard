@@ -1,7 +1,7 @@
 "use client";
 
 import { formatLastUpdated, capitalizeType } from "@/utils/general";
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from "react";
 import { useUnits, useUpdateUnitStatus } from "@/apis/units";
 import FiltersRow from "./filters/FiltersRow";
 import StatusDropdown from "./ui/StatusDropdown";
@@ -17,7 +17,11 @@ interface Unit {
   lastUpdated: string;
 }
 
-export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () => void }) {
+export default function UnitList({
+  onOpenCreateUnit,
+}: {
+  onOpenCreateUnit: () => void;
+}) {
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
@@ -55,14 +59,12 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
       { id: unitId, status: newStatus },
       {
         onSuccess: () => {
-          toast.success('Status updated successfully');
+          toast.success("Status updated successfully");
         },
         onError: (error) => {
-          toast.warning(
-              (error instanceof Error ? `${error.message}` : '')
-          );
+          toast.warning(error instanceof Error ? `${error.message}` : "");
         },
-      }
+      },
     );
   };
 
@@ -107,7 +109,10 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
           onOpenCreateUnit={onOpenCreateUnit}
         />
         <div className="text-center py-8">
-          <p className="text-red-400">Error loading units: {error instanceof Error ? error.message : 'Unknown error'}</p>
+          <p className="text-red-400">
+            Error loading units:{" "}
+            {error instanceof Error ? error.message : "Unknown error"}
+          </p>
         </div>
       </div>
     );
@@ -138,30 +143,48 @@ export default function UnitList({ onOpenCreateUnit }: { onOpenCreateUnit: () =>
               onClick={() => openDetails(unit.id)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetails(unit.id); } }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openDetails(unit.id);
+                }
+              }}
             >
               <div>
                 <h3 className="text-xl font-semibold text-white mb-2">
-                {unit.name}
+                  {unit.name}
                 </h3>
-                <p className={`w-fit px-2 text-base mb-1 rounded-full ${getTypeColor(unit.type)}`}>
+                <p
+                  className={`w-fit px-2 text-base mb-1 rounded-full ${getTypeColor(unit.type)}`}
+                >
                   {capitalizeType(unit.type)}
                 </p>
                 <p className="text-gray-400 text-sm">
-                  <span className="font-medium">Last Updated:</span> {formatLastUpdated(unit.lastUpdated)}
+                  <span className="font-medium">Last Updated:</span>{" "}
+                  {formatLastUpdated(unit.lastUpdated)}
                 </p>
               </div>
-              <div className="flex flex-col items-end gap-2" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+              <div
+                className="flex flex-col items-end gap-2"
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
                 <StatusDropdown
                   currentStatus={unit.status}
-                  onStatusChange={(newStatus) => handleStatusChange(unit.id, newStatus)}
+                  onStatusChange={(newStatus) =>
+                    handleStatusChange(unit.id, newStatus)
+                  }
                 />
               </div>
             </li>
           ))}
         </ul>
       )}
-      <UnitDetailsDrawer open={isDetailsOpen} unitId={selectedUnitId} onClose={closeDetails} />
+      <UnitDetailsDrawer
+        open={isDetailsOpen}
+        unitId={selectedUnitId}
+        onClose={closeDetails}
+      />
     </div>
   );
 }

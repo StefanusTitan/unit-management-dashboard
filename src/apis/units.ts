@@ -1,12 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const baseUrl = '/units';
+const baseUrl = "/units";
 
 export async function getAllUnits(queryParams = {}) {
   const params = new URLSearchParams(queryParams).toString();
-  const url = `${API_URL}${baseUrl}${params ? `?${params}` : ''}`;
+  const url = `${API_URL}${baseUrl}${params ? `?${params}` : ""}`;
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -15,7 +15,7 @@ export async function getAllUnits(queryParams = {}) {
 
 export function useUnits(queryParams = {}) {
   return useQuery({
-    queryKey: ['units', queryParams],
+    queryKey: ["units", queryParams],
     queryFn: () => getAllUnits(queryParams),
     staleTime: 30 * 1000, // Consider data fresh for 30 seconds
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
@@ -29,9 +29,9 @@ export function useUpdateUnitStatus() {
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const url = `${API_URL}${baseUrl}/${id}`;
       const res = await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ unit: { status } }),
       });
@@ -39,15 +39,13 @@ export function useUpdateUnitStatus() {
         // Parse the JSON error response from the API
         const errorData = await res.json();
         // Throw an error with the message from the API
-        throw new Error(
-          errorData.error || `Request failed: ${res.status}`
-        );
+        throw new Error(errorData.error || `Request failed: ${res.status}`);
       }
       return res.json();
     },
     onSuccess: () => {
       // Invalidate all units queries to refetch the data
-      queryClient.invalidateQueries({ queryKey: ['units'] });
+      queryClient.invalidateQueries({ queryKey: ["units"] });
     },
   });
 }
@@ -58,15 +56,15 @@ export function useCreateUnit() {
   return useMutation({
     mutationFn: async (unit: { name: string; type: string }) => {
       const res = await fetch(`${API_URL}${baseUrl}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ unit }),
       });
       if (!res.ok) throw new Error(`Request failed: ${res.status}`);
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['units'] });
+      queryClient.invalidateQueries({ queryKey: ["units"] });
     },
   });
 }
@@ -82,9 +80,9 @@ export async function getUnit(id: number) {
 // React Query hook for a single unit
 export function useUnit(id: number | null) {
   return useQuery({
-    queryKey: ['unit', id],
+    queryKey: ["unit", id],
     queryFn: () => {
-      if (id == null) throw new Error('id is required');
+      if (id == null) throw new Error("id is required");
       return getUnit(id);
     },
     enabled: id != null, // only run when id is provided

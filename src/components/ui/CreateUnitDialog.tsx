@@ -12,9 +12,12 @@ interface CreateUnitDialogProps {
   onClose: () => void;
 }
 
-export default function CreateUnitDialog({ isOpen, onClose }: CreateUnitDialogProps) {
+export default function CreateUnitDialog({
+  isOpen,
+  onClose,
+}: CreateUnitDialogProps) {
   const [name, setName] = useState("");
-  const [type, setType] = useState<typeof UNIT_TYPES[number]>(UNIT_TYPES[0]);
+  const [type, setType] = useState<(typeof UNIT_TYPES)[number]>(UNIT_TYPES[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -36,17 +39,20 @@ export default function CreateUnitDialog({ isOpen, onClose }: CreateUnitDialogPr
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
 
     if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDropdownOpen]);
 
@@ -77,30 +83,30 @@ export default function CreateUnitDialog({ isOpen, onClose }: CreateUnitDialogPr
         onError: (error) => {
           toast.error(
             "Failed to create unit" +
-              (error instanceof Error ? `: ${error.message}` : "")
+              (error instanceof Error ? `: ${error.message}` : ""),
           );
         },
         onSettled: () => {
           setIsSubmitting(false);
         },
-      }
+      },
     );
   };
 
   return (
     <>
       {shouldRender && (
-        <div 
+        <div
           className={`fixed inset-0 backdrop-blur-xs flex items-center justify-center z-50 transition-opacity duration-300 ${
-            isVisible ? 'opacity-100' : 'opacity-0'
+            isVisible ? "opacity-100" : "opacity-0"
           }`}
           onClick={handleClose}
         >
-          <div 
+          <div
             className={`bg-neutral-900 rounded-lg shadow-lg w-full max-w-md p-6 transition-all duration-300 ease-out ${
-              isVisible 
-                ? 'transform translate-y-0 opacity-100 scale-100' 
-                : 'transform translate-y-8 opacity-0 scale-95'
+              isVisible
+                ? "transform translate-y-0 opacity-100 scale-100"
+                : "transform translate-y-8 opacity-0 scale-95"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -135,15 +141,15 @@ export default function CreateUnitDialog({ isOpen, onClose }: CreateUnitDialogPr
                     className="w-full border border-gray-300 rounded-md shadow-sm p-2 text-left flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer"
                   >
                     <span className="capitalize">{type}</span>
-                    <ChevronDownIcon 
+                    <ChevronDownIcon
                       className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
-                        isDropdownOpen ? 'rotate-180' : 'rotate-0'
+                        isDropdownOpen ? "rotate-180" : "rotate-0"
                       }`}
                       strokeWidth={3}
                       color="#fff"
                     />
                   </button>
-                  
+
                   {isDropdownOpen && (
                     <div className="absolute z-10 mt-1 w-full bg-neutral-900 border border-gray-300 rounded-md shadow-lg">
                       <div className="py-1">
@@ -156,7 +162,9 @@ export default function CreateUnitDialog({ isOpen, onClose }: CreateUnitDialogPr
                               setIsDropdownOpen(false);
                             }}
                             className={`w-full text-left px-3 text-white py-2 hover:bg-neutral-600 focus:outline-none focus:bg-neutral-600 transition-colors capitalize cursor-pointer ${
-                              type === option ? 'bg-neutral-800' : 'text-gray-900'
+                              type === option
+                                ? "bg-neutral-800"
+                                : "text-gray-900"
                             }`}
                           >
                             {option}
@@ -182,7 +190,11 @@ export default function CreateUnitDialog({ isOpen, onClose }: CreateUnitDialogPr
                     isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
-                  {isSubmitting ? <LoaderCircle className="h-8 w-8 animate-spin" /> : "Create"}
+                  {isSubmitting ? (
+                    <LoaderCircle className="h-8 w-8 animate-spin" />
+                  ) : (
+                    "Create"
+                  )}
                 </button>
               </div>
             </form>
